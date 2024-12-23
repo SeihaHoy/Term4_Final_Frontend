@@ -20,7 +20,7 @@ const NLPMainPage = () => {
   ): Promise<void> => {
     event.preventDefault();
     try {
-      const response = await fetch("http://localhost:8000/api/nlp/create/", {
+      const response = await fetch("http://100.102.50.3:8000/api/nlp/create/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
