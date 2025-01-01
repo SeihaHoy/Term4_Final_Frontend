@@ -7,6 +7,7 @@ const CVMainPage = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [preview, setPreview] = useState<string | null>(null);
   const [predictedImage, setPredictedImage] = useState<string | null>(null);
+  const [OCR, setOCR] = useState<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -16,19 +17,21 @@ const CVMainPage = () => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     event.preventDefault();
     if (!selectedFile) {
-      setErrors(['Please select a file to upload.']);
+      setErrors(["Please select a file to upload."]);
       return;
     }
 
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    formData.append("file", selectedFile);
 
     try {
-      const response = await fetch('http://localhost:8000/api/cv/create/', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/api/cv/create/", {
+        method: "POST",
         body: formData,
       });
 
@@ -37,15 +40,16 @@ const CVMainPage = () => {
       }
 
       const data = await response.json();
-      console.log('File uploaded successfully:', data);
-      console.log('Predicted image:', data.image_pred);
+      console.log("File uploaded successfully:", data);
+      console.log("Predicted image:", data.image_pred);
       setPredictedImage(`http://localhost:8000${data.image_pred}`);
+      setOCR(data.text);
     } catch (error) {
-      console.error('Failed to upload file:', error);
+      console.error("Failed to upload file:", error);
       if (error instanceof Error) {
         setErrors([error.message]);
       } else {
-        setErrors(['An unknown error occurred.']);
+        setErrors(["An unknown error occurred."]);
       }
     }
   };
@@ -66,14 +70,17 @@ const CVMainPage = () => {
             Computer Vision
           </h5>
           <p className="font-normal text-gray-700 dark:text-gray-400">
-            Here are the biggest enterprise technology acquisitions of 2021 so
-            far, in reverse chronological order.
+            Upload an image to test our Khmer Text recognition model.
           </p>
 
           <form onSubmit={handleSubmit}>
             {preview ? (
               <div className="mt-4">
-                <img src={preview} alt="Selected file" className="max-w-full h-auto mb-4" />
+                <img
+                  src={preview}
+                  alt="Selected file"
+                  className="max-w-full h-auto mb-4"
+                />
               </div>
             ) : (
               <div className="flex items-center justify-center w-full">
@@ -98,14 +105,19 @@ const CVMainPage = () => {
                       />
                     </svg>
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="font-semibold">Click to upload</span> or drag
-                      and drop
+                      <span className="font-semibold">Click to upload</span> or
+                      drag and drop
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       SVG, PNG, JPG or GIF (MAX. 800x400px)
                     </p>
                   </div>
-                  <input id="dropzone-file" type="file" className="hidden" onChange={handleFileChange} />
+                  <input
+                    id="dropzone-file"
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
                 </label>
               </div>
             )}
@@ -130,7 +142,14 @@ const CVMainPage = () => {
               <h5 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
                 Predicted Image:
               </h5>
-              <img src={predictedImage} alt="Predicted file" className="max-w-full h-auto mb-4" />
+              <img
+                src={predictedImage}
+                alt="Predicted file"
+                className="max-w-full h-auto mb-4"
+              />
+              <p className="font-normal text-gray-700 dark:text-gray-400">
+                {Array.isArray(OCR) ? OCR.join(", ") : ""}
+              </p>
             </div>
           )}
           {errors.length > 0 && (
